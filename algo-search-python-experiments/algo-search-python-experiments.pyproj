@@ -28,11 +28,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="experiments\" />
+    <Folder Include="experiments\experiment_000001\" />
+    <Folder Include="experiments\experiment_000002\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="startup.py">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\algo-search-python-project\algo-search-python-project.pyproj">
+      <Name>algo-search-python-project</Name>
+      <Project>{210dd45e-6217-49fb-96b6-f8ac2eb0e952}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
   <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
