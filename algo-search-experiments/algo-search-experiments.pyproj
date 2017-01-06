@@ -3,16 +3,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>210dd45e-6217-49fb-96b6-f8ac2eb0e952</ProjectGuid>
+    <ProjectGuid>83d9e6dc-ae19-4759-9a50-f9af6c1173b2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>algo_search_experiments.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>algo-search-python-project</Name>
-    <RootNamespace>algo-search-python-project</RootNamespace>
+    <Name>algo-search-experiments</Name>
+    <RootNamespace>algo-search-experiments</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,22 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="classes\algorithm.py" />
-    <Compile Include="some_tests.py" />
-    <Compile Include="classes\execution.py" />
-    <Compile Include="experiments\randomsearch-addition-2-2\script.py" />
-    <Compile Include="experiments\randomsearch-addition-4-3\script.py" />
-    <Compile Include="sandbox.py" />
-    <Compile Include="startup.py" />
-    <Compile Include="classes\target.py" />
-    <Compile Include="classes\util.py" />
-    <Compile Include="classes\vertice.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="classes\" />
-    <Folder Include="experiments\" />
-    <Folder Include="experiments\randomsearch-addition-4-3\" />
-    <Folder Include="experiments\randomsearch-addition-2-2\" />
+    <Compile Include="algo_search_experiments.py" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
