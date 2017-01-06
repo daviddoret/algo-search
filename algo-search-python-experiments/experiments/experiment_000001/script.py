@@ -1,5 +1,9 @@
-from Algorithm import Algorithm, Vertice, VerticeType
+from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 from bitstring import BitArray, BitStream
+from classes.algorithm import Algorithm, Vertice, VerticeType
+from classes.util import util
+
+util.set_logging_level(WARNING)
 
 algo = Algorithm(2,2)
 
@@ -8,7 +12,7 @@ algo.define_target(BitArray('0b01'),BitArray('0b01'))
 algo.define_target(BitArray('0b10'),BitArray('0b01'))
 algo.define_target(BitArray('0b11'),BitArray('0b10'))
 
-algo.search_algorithm_randomly(128)
+algo.search_algorithm_randomly(256)
 
 algo.view_as_svg()
 

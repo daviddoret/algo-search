@@ -7,6 +7,7 @@ import random
 from .vertice import Vertice, VerticeType
 from .execution import Execution
 from .target import Target
+from .util import util
 
 class Algorithm(object):
     """A binary algorithm modeled as an acyclic directed graph"""
@@ -71,18 +72,6 @@ class Algorithm(object):
             else:
                 self.operations_by_predecessors_index[key_as_string] = operation
                 return True
-        # REMOVE: if keys == None:
-        # REMOVE:     # The operation is not fully configured with all predecessors,
-        # REMOVE:     # it has nothing to do in the index until it is fully configured.
-        # REMOVE:     # Hence, we authorize this step of the configuration.
-        # REMOVE:     return True
-        # REMOVE: for key in keys:
-        # REMOVE:     if key in self.operations_by_predecessors_index:
-        # REMOVE:         # Another operation exists already with the same predecessors.
-        # REMOVE:         return False
-        # REMOVE: # No operation exists yet with these predecessors.
-        # REMOVE: self.operations_by_predecessors_index[key] = operation
-        # REMOVE: return True
 
     def create_operation(self, predecessors):
         vertice = Vertice(self, VerticeType.OPERATION, predecessors = predecessors)
@@ -149,23 +138,6 @@ class Algorithm(object):
             else:
                 return operation
         
-        # REMOVE: for predecessor_index in range(0, len(operation.predecessors)):
-        # REMOVE: 
-        # REMOVE:     random_predecessor_selection_attempts = 1
-        # REMOVE:     while random_predecessor_selection_attempts < max_random_predecessor_selection_attempts:
-        # REMOVE: 
-        # REMOVE:         random_number = random.randint(1,possibilities)
-        # REMOVE:         if random_number <= len(self.inputs):
-        # REMOVE:             # the random predecessor will be an input
-        # REMOVE:             predecessor = self.inputs[random_number - 1]
-        # REMOVE:         else:
-        # REMOVE:             predecessor = self.operations[random_number - len(self.inputs) - 1]
-        # REMOVE:     
-        # REMOVE:         if self.set_edge(predecessor, operation, predecessor_index):
-        # REMOVE:             break
-        # REMOVE:         else:
-        # REMOVE:             random_predecessor_selection_attempts += 1
-
     def search_algorithm_randomly(self, max_iterations=10000):
     
         # TODO: REVIEW THE METHOD PARAMETERS, THEY NEED BE RENAMED AND REVIEWED, 
@@ -184,36 +156,19 @@ class Algorithm(object):
 
         # continue iterating the search until all outputs have been succesfuly mapped
         iteration = 1
+
         while len(output_searched) > 0 and iteration <= max_iterations:
             iteration += 1
 
-            # REMOVE: # populate a new batch of random operations
-            # REMOVE: for random_operation_index in range(0,operation_batch_size):
-            # REMOVE:     self.create_random_operation(max_random_predecessor_selection_attempts)
-
             random_operation = self.create_random_operation(8)
             self.execute_single_operation(random_operation)
-
-            # REMOVE: # ********************************************************************
-            # REMOVE: # IMPORTANT OPTIMIZATION:
-            # REMOVE: # WE DON'T NEED TO RECALCULATE EVERYTHING. WE MUST ONLY
-            # REMOVE: # COMPUTE THE EXECUTION VALUES OF THE OPERATIONS IN THE BATCH.
-            # REMOVE: # OR WE CAN EVEN DO THAT INTO "create_random_operation()".
-            # REMOVE: # ********************************************************************
-            # REMOVE: 
-            # REMOVE: # for each target value
-            # REMOVE: #   execute algo with target value input value
-            # REMOVE: for target in self.targets.values():
-            # REMOVE:     self.execute(target.input)
             
             for output in output_searched:
 
-                # REMOVE: for operation in self.operations:
-                    
                 match = True
 
-                for target_value_key in output.target_values.keys():
-                    if output.get_target_value(target_value_key) != random_operation.get_execution_value(target_value_key):
+                for input_key_string in output.target_values.keys():
+                    if output.get_target_value(input_key_string) != random_operation.get_execution_value(input_key_string):
                         match = False
                         break
 
@@ -222,7 +177,6 @@ class Algorithm(object):
                     # Remove this output from the list of outputs being searched
                     output_searched.remove(output)
                     # And link this operation with this output
-                    # REMOVE: self.set_edge(operation, output, 0)
                     output.set_predecessors([random_operation])
                     # ASSUMPTIONS: There are no 2 outputs with identical targets,
                     #   otherwise we would miss the second one.
@@ -251,11 +205,11 @@ class Algorithm(object):
         that will be used to automatically infer the algorithm"""
 
         target = Target(self, input_as_bitarray, output_as_bitarray)
-        self.targets[target.get_key()] = target
+        self.targets[util.bitarray_2_key_string(input_as_bitarray)] = target
         # synchronize the target_values of the algo outputs
         # to facilitate vertical (truth table) comparison
         for output_index in range(0, len(self.outputs)):
-            self.outputs[output_index].set_target_value(target.get_key(), output_as_bitarray[output_index])        
+            self.outputs[output_index].set_target_value(target.input, output_as_bitarray[output_index])        
 
     def add_vertice(self, vertice):
         """safe method to add new vertices to the graph
@@ -366,8 +320,12 @@ class Algorithm(object):
         Execute a single operation vertice.
         This is typically used as part of an algorithm search process.
         """
-        for execution_key in self.executions.keys():
-            operation.compute_operation(execution_key)
+
+        # OPTIMIZATION: Execute only the distinct inputs after application of the input mask.
+
+        #for execution_key in self.executions.keys():
+        for input_key_string in self.targets.keys():
+            operation.compute_operation(input_key_string)
 
     def execute(self, input_as_bitarray):
         """

@@ -5,10 +5,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>9c4d1723-2007-48ad-92f9-4be3ea0b81bf</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <StartupFile>experiments\experiment_000001\script.py</StartupFile>
+    <SearchPath>..\algo-search-python-project\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>algo-search-python-experiments</Name>
@@ -30,20 +28,15 @@
     <Folder Include="experiments\" />
     <Folder Include="experiments\experiment_000001\" />
     <Folder Include="experiments\experiment_000002\" />
+    <Folder Include="sandbox\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="experiments\experiment_000001\script.py" />
     <Compile Include="experiments\experiment_000002\script.py" />
+    <Compile Include="sandbox\sandbox.py" />
     <Compile Include="startup.py">
       <SubType>Code</SubType>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\algo-search-python-project\algo-search-python-project.pyproj">
-      <Name>algo-search-python-project</Name>
-      <Project>{210dd45e-6217-49fb-96b6-f8ac2eb0e952}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
   <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

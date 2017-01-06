@@ -1,3 +1,4 @@
+from bitstring import BitArray, BitStream
 from enum import Enum
 from .util import util
 from .target import Target
@@ -37,15 +38,6 @@ class Vertice(object):
                 self.predecessors.append(None)
             else:
                 self.set_predecessors(predecessors)
-            # REMOVE: initializes the predecessors. since these are "mandatory",
-            # REMOVE: it is simpler to let the user know the positions in the list
-            # REMOVE: have been pre-initialized and may be accessed directly by
-            # REMOVE: index position.
-            # REMOVE: for position in range(0, predecessors_number):
-            # REMOVE:    self.predecessors.append(None)
-            # REMOVE: for predecessor_index in range(0,len(predecessors)):
-            # REMOVE:    if not self.set_predecessor(predecessors[predecessor_index], predecessor_index):
-            # REMOVE:        XXX
         elif type == VerticeType.OUTPUT:
             self.id = algorithm.get_output_id()
             if predecessors == None or len(predecessors) == 0:
@@ -139,16 +131,49 @@ class Vertice(object):
         self.version += 1
         self.algorithm.increment_version()
 
-    def set_execution_value(self, input_as_bitarray, value):
-        """
+    def set_execution_value(self, input, value):
+        """Stores in memory an input/result pair.
+        
         We apply an AND operation with the input mask, 
         like this only the input bits that are significant for this vertice are taken into account.
-        """
-        key = util.bitarray_2_key_string(input_as_bitarray & self.input_mask)
-        self.execution_values[key] = value
 
-    def get_execution_value(self, input_as_bitarray):
-        key = util.bitarray_2_key_string(input_as_bitarray & self.input_mask)
+        Args:
+            input (BitArray, string): The algorithm input. If received as string, will be converted back to BitArray.
+            value (Boolean): The resulting value of this vertice for the given input.
+
+        Returns:
+            Nothing.
+        """
+        input_as_bitarray = None
+        if isinstance(input, BitArray):
+            input_as_bitarray = input
+        elif isinstance(input, str):
+            input_as_bitarray = util.key_string_2_bitarray(input)
+        else:
+            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
+            raise TypeError()
+        masked_key = util.bitarray_2_key_string(input_as_bitarray & self.input_mask)
+        self.execution_values[masked_key] = value
+
+    def get_execution_value(self, input):
+        """Retrieve from memory the result of an input.
+        
+        We apply an AND operation with the input mask, 
+        like this only the input bits that are significant for this vertice are taken into account.
+
+        Args:
+            input (BitArray or string): The algorithm input.
+
+        Returns:
+            Boolean value of the result or None if no execution value was found.
+        """
+        if isinstance(input, BitArray):
+            key = util.bitarray_2_key_string(input)
+        elif isinstance(input, str):
+            key = input
+        else:
+            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
+            raise TypeError()
         if key in self.execution_values:
             return self.execution_values[key]
         else:
@@ -169,11 +194,34 @@ class Vertice(object):
                 pretty_string += '=' + util.boolean_2_pretty_string(value) + ','
             return pretty_string
 
-    def set_target_value(self, input_as_bitarray, value_as_boolean):
-        self.target_values[util.bitarray_2_key_string(input_as_bitarray)] = value_as_boolean
+    def set_target_value(self, input, value_as_boolean):
+        """
+        input: the input key string or the original BitArray
+        """
+        key = None
+        if isinstance(input, BitArray):
+            key = util.bitarray_2_key_string(input)
+        elif isinstance(input, str):
+            key = input
+        else:
+            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
+            raise TypeError()
+        self.target_values[key] = value_as_boolean
 
-    def get_target_value(self, input_as_bitarray):
-        return self.target_values[util.bitarray_2_key_string(input_as_bitarray)]
+
+    def get_target_value(self, input):
+        """
+        input: the input key string or the original BitArray
+        """
+        key = None
+        if isinstance(input, BitArray):
+            key = util.bitarray_2_key_string(input)
+        elif isinstance(input, str):
+            key = input
+        else:
+            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
+            raise TypeError()
+        return self.target_values[key]
 
     def get_target_values_as_pretty_string(self):
         pretty_string = ''
@@ -188,6 +236,7 @@ class Vertice(object):
         input1 = self.predecessors[1].get_execution_value(key)
         output_value = not (input0 and input1)
         self.set_execution_value(key, output_value)
+        util.logger.debug('%s %s NAND(%s,%s)=%s', self.id, key, input0, input1, output_value)
         return output_value
 
     def retrieve_output(self, key):
@@ -222,6 +271,14 @@ class Vertice(object):
     # REMOVE:             self.predecessors[1].id + '-' + self.predecessors[0].id)
     # REMOVE:     else:
     # REMOVE:         return None
+
+    def __str__(self):
+        return self.id + ':' + str(self.input_mask) + ',' + str(self.execution_values) + ',' + str(self.target_values)
+
+    def __repr__(self):
+        return str(self)
+
+
 
 class VerticeType(Enum):
     INPUT = 1
