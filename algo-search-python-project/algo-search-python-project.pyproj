@@ -26,8 +26,6 @@
     <Compile Include="classes\algorithm.py" />
     <Compile Include="some_tests.py" />
     <Compile Include="classes\execution.py" />
-    <Compile Include="experiments\randomsearch-addition-2-2\script.py" />
-    <Compile Include="experiments\randomsearch-addition-4-3\script.py" />
     <Compile Include="sandbox.py" />
     <Compile Include="startup.py" />
     <Compile Include="classes\target.py" />
@@ -36,9 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="classes\" />
-    <Folder Include="experiments\" />
-    <Folder Include="experiments\randomsearch-addition-4-3\" />
-    <Folder Include="experiments\randomsearch-addition-2-2\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
