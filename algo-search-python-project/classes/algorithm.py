@@ -1,12 +1,12 @@
 ﻿from enum import Enum
-import timeit
+from graphviz import Digraph
 from bitstring import BitArray, BitStream
+import timeit
 #import secret
 import random
-from Vertice import Vertice, VerticeType
-from Execution import Execution
-from Target import Target
-from graphviz import Digraph
+from .vertice import Vertice, VerticeType
+from .execution import Execution
+from .target import Target
 
 class Algorithm(object):
     """A binary algorithm modeled as an acyclic directed graph"""
@@ -464,13 +464,6 @@ class Algorithm(object):
 
     def export_as_graphviz_dot(self):
         return print(self.get_graphviz_dot().source)
-
-    def export_as_pdf(self):
-        path = 'C:\\Users\\doretd\\01-WKS\\MOOC-Complexity\\Primes\\PyPrimes\\PyPrimes\\RandomSearchSuperAlgorithm\\Temp\\samplegraph'
-        self.get_graphviz_dot().render(path, view=True)
-
-    def export_as_svg(self):
-        print('to be implemented')
 
     def view_as_pdf(self):
         graph = self.get_graphviz_dot()

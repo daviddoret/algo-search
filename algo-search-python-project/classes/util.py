@@ -17,7 +17,7 @@ class Util(object):
         steam_handler.setLevel(DEBUG)
         self.logger.addHandler(steam_handler)
 
-    def boolean_2_pretty_string(boolean_value):
+    def boolean_2_pretty_string(self, boolean_value):
         if boolean_value == None:
             return '.'
         elif boolean_value:
@@ -25,7 +25,10 @@ class Util(object):
         else:
             return '0'
 
-    def bitarray_2_key_string(bitarray):
-        return str(bitarray)[2,]
+    def bitarray_2_key_string(self, bitarray):
+        """
+        Returns a binary string representation of the BitArray.
+        """
+        return (bitarray.bin)
 
 util = Util()

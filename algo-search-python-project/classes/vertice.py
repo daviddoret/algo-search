@@ -1,6 +1,6 @@
 from enum import Enum
-from Target import Target
-from Util import util
+from .util import util
+from .target import Target
 
 class Vertice(object):
     """
@@ -144,11 +144,13 @@ class Vertice(object):
         We apply an AND operation with the input mask, 
         like this only the input bits that are significant for this vertice are taken into account.
         """
-        self.execution_values[util.bitarray_2_key_string(input_as_bitarray & self.input_mask)] = value
+        key = util.bitarray_2_key_string(input_as_bitarray & self.input_mask)
+        self.execution_values[key] = value
 
     def get_execution_value(self, input_as_bitarray):
-        if util.bitarray_2_key_string(input_as_bitarray) in self.execution_values:
-            return self.execution_values[util.bitarray_2_key_string(input_as_bitarray)]
+        key = util.bitarray_2_key_string(input_as_bitarray & self.input_mask)
+        if key in self.execution_values:
+            return self.execution_values[key]
         else:
             return None
 

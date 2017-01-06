@@ -1,5 +1,6 @@
 ﻿import unittest
-from Algorithm import Algorithm, Vertice, VerticeType
+from classes.algorithm import Algorithm
+from classes.vertice import Vertice, VerticeType
 from bitstring import BitArray, BitStream
 
 class Test_Check(unittest.TestCase):
@@ -53,7 +54,7 @@ class Test_Check(unittest.TestCase):
         self.assertEqual(output, BitArray('0b0'))
 
         print(a.export_as_graphviz_dot())
-        a.export_as_pdf()
+        a.view_as_svg()
 
         print('STOP')
 
