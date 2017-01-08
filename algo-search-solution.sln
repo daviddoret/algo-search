@@ -7,6 +7,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "algo-search-python-project"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "algo-search-python-experiments", "algo-search-python-experiments\algo-search-python-experiments.pyproj", "{9C4D1723-2007-48AD-92F9-4BE3EA0B81BF}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "algo-search-python-testing", "algo-search-python-testing\algo-search-python-testing.pyproj", "{77B39383-51E2-4FE0-A42F-00CC4C7C4487}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,8 @@ Global
 		{210DD45E-6217-49FB-96B6-F8AC2EB0E952}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C4D1723-2007-48AD-92F9-4BE3EA0B81BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C4D1723-2007-48AD-92F9-4BE3EA0B81BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77B39383-51E2-4FE0-A42F-00CC4C7C4487}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77B39383-51E2-4FE0-A42F-00CC4C7C4487}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,16 +3,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>210dd45e-6217-49fb-96b6-f8ac2eb0e952</ProjectGuid>
+    <ProjectGuid>77b39383-51e2-4fe0-a42f-00cc4c7c4487</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <StartupFile>tests\general_tests.py</StartupFile>
+    <SearchPath>..\algo-search-python-project\;..\algo-search-python-experiments\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>algo-search-python-project</Name>
-    <RootNamespace>algo-search-python-project</RootNamespace>
+    <Name>algo-search-python-testing</Name>
+    <RootNamespace>algo-search-python-testing</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,15 +21,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="classes\algorithm.py" />
-    <Compile Include="classes\execution.py" />
-    <Compile Include="startup.py" />
-    <Compile Include="classes\target.py" />
-    <Compile Include="classes\util.py" />
-    <Compile Include="classes\vertice.py" />
+    <Compile Include="tests\general_tests.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="classes\" />
+    <Folder Include="tests\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

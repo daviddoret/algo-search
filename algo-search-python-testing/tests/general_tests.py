@@ -1,7 +1,11 @@
-﻿import unittest
+﻿from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
+import unittest
+from bitstring import BitArray, BitStream
 from classes.algorithm import Algorithm
 from classes.vertice import Vertice, VerticeType
-from bitstring import BitArray, BitStream
+from classes.util import util
+
+util.set_logging_level(DEBUG)
 
 class Test_Check(unittest.TestCase):
 
@@ -22,17 +26,8 @@ class Test_Check(unittest.TestCase):
         nand = a.create_operation([a.inputs[0], a.inputs[1]])
         self.assertGreater(a.version, version_test)
 
-        # REMOVE: version_test = a.version
-        # REMOVE: a.set_edge(a.inputs[0], nand, 0)
-        # REMOVE: self.assertGreater(a.version, version_test)
-
-        # REMOVE: version_test = a.version
-        # REMOVE: a.set_edge(a.inputs[1], nand, 1)
-        # REMOVE: self.assertGreater(a.version, version_test)
-
         version_test = a.version
         a.outputs[0].set_predecessors([nand])
-        # REMOVE: a.set_edge(nand, a.outputs[0], 0)
         self.assertGreater(a.version, version_test)
 
         version_test = a.version
@@ -62,4 +57,4 @@ class Test_Check(unittest.TestCase):
     #    self.assertEqual(1,2)
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(exit=False)

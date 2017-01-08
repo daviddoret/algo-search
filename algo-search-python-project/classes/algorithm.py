@@ -15,9 +15,9 @@ class Algorithm(object):
     def __init__(self, input_size, output_size, title=None):
         self.version = 1
         self.compiled_version = None
-        self.last_input_id = 0
-        self.last_operation_id = 0
-        self.last_output_id = 0
+        self.last_input_id = -1
+        self.last_operation_id = -1
+        self.last_output_id = -1
         self.vertices = []
         self.input_size = input_size
         self.inputs = []
@@ -59,6 +59,9 @@ class Algorithm(object):
         return BitArray(length=self.input_size)
 
     def request_operation_by_predecessors_index_authorization(self, operation, candidate_predecessors):
+        """
+        """
+        util.debug('algo.request_operation_by_predecessors_index_authorization(operation=%s, candidate_predecessors=%s)', operation.id, ','.join(predecessor.id for predecessor in candidate_predecessors))
         if candidate_predecessors == None:
             return True
         elif len(candidate_predecessors) == 0:
@@ -67,18 +70,31 @@ class Algorithm(object):
             candidate_predecessors_ids = [vertice.id for vertice in candidate_predecessors]
             candidate_predecessors_ids_sorted = sorted(candidate_predecessors_ids)
             key_as_string = ','.join(candidate_predecessors_ids_sorted)
+            util.debug('    key_as_string=%s', key_as_string)
             if key_as_string in self.operations_by_predecessors_index:
+                util.debug('    return=False')
                 return False
             else:
                 self.operations_by_predecessors_index[key_as_string] = operation
+                util.debug('    return=True')
                 return True
 
     def create_operation(self, predecessors):
-        vertice = Vertice(self, VerticeType.OPERATION, predecessors = predecessors)
-        self.add_vertice(vertice)
-        return vertice
+        """
+        """
+        util.debug('algo.create_operation(%s)', [predecessor.id for predecessor in predecessors] if predecessors != None else None)
+        if(predecessors == None):
+            util.error(' predecessors==None',)
+        elif(len(predecessors) != 2):
+            # For the time being, we do not support other functions than NAND
+            # thus I strictly test for 2 predecessors.
+            util.error(' len(predecessors)!=2')
+        operation = Vertice(self, VerticeType.OPERATION, predecessors = predecessors)
+        self.add_vertice(operation)
+        util.debug(' return=%s',operation.id)
+        return operation
 
-    def create_random_operation(self, max_random_predecessor_selection_attempts=64):
+    def create_random_operation(self): #, max_random_predecessor_selection_attempts=4):
         
         # TODO: use better PRG with the secrets lib
         #   unfortunately, the secrets lib failed to install
@@ -98,48 +114,53 @@ class Algorithm(object):
 
         # OPTIMIZATION: check NAND execution pathes that lead to equivalent
         #   results. Then, mark these as useless and remove them from any further effort.
+        util.debug('algo.create_random_operation()')
 
         possibilities = len(self.inputs) + len(self.operations)
+        #random_predecessor_selection_attempts = 1
+        random_operation = None
+
+        #while random_predecessor_selection_attempts < max_random_predecessor_selection_attempts:
         predecessors = []
-        random_predecessor_selection_attempts = 1
-
-        while random_predecessor_selection_attempts < max_random_predecessor_selection_attempts:
-
-            keep_trying = True
-            while keep_trying:
-                random_number = random.randint(1,possibilities)
-                if random_number <= len(self.inputs):
-                    # the random predecessor will be an input
-                    predecessor = self.inputs[random_number - 1]
-                    # REMOVE: predecessors.append(self.inputs[random_number - 1])
-                else:
-                    predecessor = self.operations[random_number - len(self.inputs) - 1]
-                    # REMOVE: predecessors.append(self.operations[random_number - len(self.inputs) - 1])
-                if not predecessor.useless:
-                    keep_trying = False
-                    predecessors.append(predecessor)
-            keep_trying = True
-            while keep_trying:
-                random_number = random.randint(1,possibilities)
-                if random_number <= len(self.inputs):
-                    # the random predecessor will be an input
-                    predecessor = self.inputs[random_number - 1]
-                    # REMOVE: predecessors.append(self.inputs[random_number - 1])
-                else:
-                    predecessor = self.operations[random_number - len(self.inputs) - 1]
-                    # REMOVE: predecessors.append(self.operations[random_number - len(self.inputs) - 1])
-                if not predecessor.useless:
-                    keep_trying = False
-                    predecessors.append(predecessor)
-
-            operation = self.create_operation(predecessors)
-            if operation.useless:
-                random_predecessor_selection_attempts += 1
+        keep_trying = True
+        while keep_trying:
+            random_number = random.randint(1,possibilities)
+            if random_number <= len(self.inputs):
+                # the random predecessor will be an input
+                predecessor = self.inputs[random_number - 1]
+                # REMOVE: predecessors.append(self.inputs[random_number - 1])
             else:
-                return operation
-        
-    def search_algorithm_randomly(self, max_iterations=10000):
-    
+                predecessor = self.operations[random_number - len(self.inputs) - 1]
+                # REMOVE: predecessors.append(self.operations[random_number - len(self.inputs) - 1])
+            if not predecessor.useless:
+                keep_trying = False
+                predecessors.append(predecessor)
+        keep_trying = True
+        while keep_trying:
+            random_number = random.randint(1,possibilities)
+            if random_number <= len(self.inputs):
+                # the random predecessor will be an input
+                predecessor = self.inputs[random_number - 1]
+                # REMOVE: predecessors.append(self.inputs[random_number - 1])
+            else:
+                predecessor = self.operations[random_number - len(self.inputs) - 1]
+                # REMOVE: predecessors.append(self.operations[random_number - len(self.inputs) - 1])
+            if not predecessor.useless:
+                keep_trying = False
+                predecessors.append(predecessor)
+
+        random_operation = self.create_operation(predecessors)
+        if random_operation.useless:
+            util.warning(' random_operation.useless=%s',random_operation.useless)
+            #random_operation = None # To prevent returning a useless operation
+            #random_predecessor_selection_attempts += 1
+        #else:
+        #    exit
+        util.debug(' random_operation=%s',random_operation.id if random_operation != None else None)
+        return random_operation
+            
+    def search_algorithm_randomly(self, max_iterations=1024):
+        util.debug('algo.search_algorithm_randomly(max_iterations=%s)',max_iterations)
         # TODO: REVIEW THE METHOD PARAMETERS, THEY NEED BE RENAMED AND REVIEWED, 
         #   e.g. we no longer use batches.
             
@@ -149,7 +170,13 @@ class Algorithm(object):
         # This will initialize the inputs, etc.
         # Of course, because the algorithm does not have any operation yet,
         # these executions will run very fast and yield nothing.
-        self.execute_all_target_inputs()
+        #self.execute_all_target_inputs()
+
+        for input in self.inputs:
+            self.compute_single_input_over_all_targets(input)
+
+        for output in self.outputs:
+            util.debug('    %s.target_values=%s', output.id, output.get_target_values_as_pretty_string())
 
         # makes a copy of the output list
         output_searched = list(self.outputs)
@@ -158,29 +185,38 @@ class Algorithm(object):
         iteration = 1
 
         while len(output_searched) > 0 and iteration <= max_iterations:
+            util.debug('    iteration=%s',iteration)
             iteration += 1
 
-            random_operation = self.create_random_operation(8)
-            self.execute_single_operation(random_operation)
+            random_operation = self.create_random_operation()
             
-            for output in output_searched:
+            if random_operation == None:
+                util.warning('  random_operation==None')
+            else:
+                util.debug('    random_operation=%s',random_operation.id)
+                self.compute_single_operation_over_all_targets(random_operation)
+                util.debug('    random_operation.execution_values=%s',random_operation.get_execution_values_as_pretty_string())
 
-                match = True
+                for output in output_searched:
 
-                for input_key_string in output.target_values.keys():
-                    if output.get_target_value(input_key_string) != random_operation.get_execution_value(input_key_string):
-                        match = False
+                    match = True
+
+                    for input_key_string in output.target_values.keys():
+                        if output.get_target_value(input_key_string) != random_operation.get_execution_value(input_key_string):
+                            match = False
+                            break
+                    util.debug('    output.id=%s',output.id)
+                    util.debug('    output.target_values=%s',output.get_target_values_as_pretty_string())
+                    util.debug('    match=%s',match)
+                    if match:
+                        # This operation matches the target value requirements of this output
+                        # Remove this output from the list of outputs being searched
+                        output_searched.remove(output)
+                        # And link this operation with this output
+                        output.set_predecessors([random_operation])
+                        # ASSUMPTIONS: There are no 2 outputs with identical targets,
+                        #   otherwise we would miss the second one.
                         break
-
-                if match:
-                    # This operation matches the target value requirements of this output
-                    # Remove this output from the list of outputs being searched
-                    output_searched.remove(output)
-                    # And link this operation with this output
-                    output.set_predecessors([random_operation])
-                    # ASSUMPTIONS: There are no 2 outputs with identical targets,
-                    #   otherwise we would miss the second one.
-                    break
 
         # TODO: output some metrics (% output success, etc.)
 
@@ -200,16 +236,16 @@ class Algorithm(object):
         # SECONDARY OPTIMIZATION IDEA: if two outputs have the
         # same vertical target values, don't do the work twice.
 
-    def define_target(self, input_as_bitarray, output_as_bitarray):
+    def define_target(self, input_value, output_value):
         """will typically be called multiple times to populate the target values
         that will be used to automatically infer the algorithm"""
-
-        target = Target(self, input_as_bitarray, output_as_bitarray)
-        self.targets[util.bitarray_2_key_string(input_as_bitarray)] = target
+        util.debug('algo.define_target(input_value=%s, output_value=%s)',input_value, output_value)
+        target = Target(self, input_value, output_value)
+        self.targets[util.bitarray_2_key_string(input_value)] = target
         # synchronize the target_values of the algo outputs
         # to facilitate vertical (truth table) comparison
         for output_index in range(0, len(self.outputs)):
-            self.outputs[output_index].set_target_value(target.input, output_as_bitarray[output_index])        
+            self.outputs[output_index].set_target_value(target.input, output_value[output_index])        
 
     def add_vertice(self, vertice):
         """safe method to add new vertices to the graph
@@ -315,17 +351,22 @@ class Algorithm(object):
         for target in self.targets.values():
             self.execute(target.input)
 
-    def execute_single_operation(self, operation):
+    def compute_single_input_over_all_targets(self, input_vertice):
+        # OPTIMIZATION: Execute only the distinct inputs after application of the input mask.
+        for target in self.targets.values():
+            input_vertice.compute_input_resulting_value(target.input)
+
+    def compute_single_operation_over_all_targets(self, operation_vertice):
         """
-        Execute a single operation vertice.
+        On a single operation vertice, executes the operation for all target inputs.
         This is typically used as part of an algorithm search process.
         """
-
         # OPTIMIZATION: Execute only the distinct inputs after application of the input mask.
-
-        #for execution_key in self.executions.keys():
-        for input_key_string in self.targets.keys():
-            operation.compute_operation(input_key_string)
+        util.debug('algo.compute_single_operation_over_all_targets(%s)', operation_vertice.id if operation_vertice != None else None)
+        if operation_vertice == None:
+            util.error('    operation_vertice=None')
+        for target in self.targets.values():
+            operation_vertice.compute_operation_resulting_value(target.input)
 
     def execute(self, input_as_bitarray):
         """
@@ -346,18 +387,19 @@ class Algorithm(object):
 
         # set the values of all inputs
         for input_bit_position in range(0,len(input_as_bitarray)):
-            self.inputs[input_bit_position].set_execution_value(execution.key, input_as_bitarray[input_bit_position])
+            self.inputs[input_bit_position].compute_input_resulting_value(input_as_bitarray)
+            #self.inputs[input_bit_position].set_execution_value(execution.key, input_as_bitarray[input_bit_position])
 
         # loop through operations from level 2 to n
         # self.max_level = output level, but range() does not generate the stop value
         for level in range(2, self.max_level):
             for operation in self.operations_by_level[level]:
-                operation.compute_operation(execution.key)
+                operation.compute_operation_resulting_value(input_as_bitarray)
 
         # set the values of all outputs
         output_as_bitarray = BitArray(length = len(self.outputs))
         for output_index in range(0, len(self.outputs)):
-            output_value = self.outputs[output_index].retrieve_output(execution.key)
+            output_value = self.outputs[output_index].compute_output_resulting_value(input_as_bitarray)
             output_as_bitarray.set(output_value, output_index)
         execution.output = output_as_bitarray
 
@@ -403,9 +445,14 @@ class Algorithm(object):
             level_cluster.body.append('fillcolor=white')
             level_cluster.body.append('color=lightgrey')
             for operation in self.operations_by_level[level]:
-                level_cluster.node(operation.id, label=operation.id, shape='rect', color='grey')
+                label = operation.id + ' ' + operation.get_execution_values_as_pretty_string()
+                color = 'grey'
+                if operation.useless:
+                    color = 'red'
+                level_cluster.node(operation.id, label=label, shape='rect', color=color)
             operation_cluster.subgraph(level_cluster)
         for output in self.outputs:
+            label = output.id + ' ' + operation.get_target_values_as_pretty_string()
             output_cluster.node(output.id, label=output.id, shape='rect', color='green')
         main_graph.subgraph(input_cluster)
         main_graph.subgraph(operation_cluster)

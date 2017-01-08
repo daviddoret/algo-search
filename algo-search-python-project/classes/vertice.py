@@ -14,6 +14,7 @@ class Vertice(object):
                  , type
                  , input_index = None
                  , predecessors = None):
+        util.debug('Vertice.__init__(algo,%s,%s,%s)', type, input_index, [predecessor.id for predecessor in predecessors] if predecessors != None else None)
         self.version = 1
         self.algorithm = algorithm
         self.predecessors = []
@@ -28,12 +29,10 @@ class Vertice(object):
         self.useless = False # Until proved otherwise, vertices are assumed to play a useful role in the algorithm.
         if type == VerticeType.INPUT:
             self.id = algorithm.get_input_id()
-            # Configure the input mask.
-            self.input_mask[input_index] = 1
         elif type == VerticeType.OPERATION:
             self.id = algorithm.get_operation_id()
             if predecessors == None or len(predecessors) == 0:
-                util.logger.warning('Creation of operation vertice {0} without predecessors', self.id)
+                util.warning('Creation of operation vertice {0} without predecessors', self.id)
                 self.predecessors.append(None)
                 self.predecessors.append(None)
             else:
@@ -45,14 +44,19 @@ class Vertice(object):
             elif len(predecessors) == 1:
                 self.set_predecessors(predecessors)
             else:
-                util.logger.error('Creation of output vertice {0} with more than 1 predecessor', self.id)
+                util.error('Creation of output vertice {0} with more than 1 predecessor', self.id)
+        util.debug(' id=%s', self.id)
         self.recompute_level()
+        util.debug(' level=%s', self.level)
+        self.compute_input_mask()
+        util.debug(' input_mask=%s', self.get_input_mask())
 
     def set_predecessors(self, predecessors):
         """
         Parameters:
         - predecessors: an *exhaustive* and *sorted* list of predecessors
         """
+        util.debug('%s.set_predecessors(%s)', self.id, [predecessor.id for predecessor in predecessors] if predecessors != None else None)
         if predecessors == None:
             self.orphaned_from_predecessors = True
             self.predecessors = []
@@ -73,25 +77,15 @@ class Vertice(object):
             self.useless = True
             self.useless_reason = VerticeUselessReason.DUPLICATE_VERTICE_WITH_IDENTICAL_PREDECESSORS
 
-    # REMOVE: def set_predecessor(self, predecessor, index):
-    # REMOVE:     """
-    # REMOVE:     Returns: True|False (if the predecessor was successfuly configured)
-    # REMOVE:     """
-    # REMOVE:     if self.algorithm.request_operation_by_predecessors_index_authorization(self):
-    # REMOVE:         #TODO: if successor predecessor was already configured, 
-    # REMOVE:         #   remove first the corresponding edge
-    # REMOVE:         self.predecessors[index] = predecessor
-    # REMOVE:         self.recompute_level()
-    # REMOVE:         return True
-    # REMOVE:     else:
-    # REMOVE:         # This configuration has not been authorized because
-    # REMOVE:         # it would create a duplicate operation (i.e. two
-    # REMOVE:         # operations with the same predecessors.
-    # REMOVE:         return False
-
     def compute_input_mask(self):
-        for predecessor in self.predecessors:
-            self.input_mask = self.input_mask | predecessor.get_input_mask()
+        util.debug('%s.compute_input_mask()', self.id)
+        if self.type == VerticeType.INPUT:
+            self.input_mask[self.input_index] = 1
+        else:
+            for predecessor in self.predecessors:
+                if predecessor != None:
+                    self.input_mask = self.input_mask | predecessor.get_input_mask()
+        util.debug('  input_mask=%s', self.input_mask)
 
     def get_input_mask(self):
         return self.input_mask
@@ -107,6 +101,7 @@ class Vertice(object):
         #   useless duplicate recomputations that in voluminous graphs could
         #   lead to decreased performances. if this becomes an issue, there is
         #   room for optimization here.
+        util.debug('%s.recompute_level()', self.id)
         new_level = None
         if self.type == VerticeType.INPUT:
             new_level = 1
@@ -126,12 +121,13 @@ class Vertice(object):
             for successor in self.successors:
                 successor.recompute_level()
             self.increment_version()
+        util.debug(' level=%s', self.level)
 
     def increment_version(self):
         self.version += 1
         self.algorithm.increment_version()
 
-    def set_execution_value(self, input, value):
+    def set_execution_value(self, input_value, output_value):
         """Stores in memory an input/result pair.
         
         We apply an AND operation with the input mask, 
@@ -144,18 +140,24 @@ class Vertice(object):
         Returns:
             Nothing.
         """
-        input_as_bitarray = None
-        if isinstance(input, BitArray):
-            input_as_bitarray = input
-        elif isinstance(input, str):
-            input_as_bitarray = util.key_string_2_bitarray(input)
-        else:
-            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
-            raise TypeError()
-        masked_key = util.bitarray_2_key_string(input_as_bitarray & self.input_mask)
-        self.execution_values[masked_key] = value
+        util.debug('%s.set_execution_value(%s, %s)', self.id, input_value, output_value)
+        input_masked_key_string = self.get_input_masked_key_string(input_value)
+        self.execution_values[input_masked_key_string] = output_value
 
-    def get_execution_value(self, input):
+    def get_input_masked_key_string(self, input_value):
+        util.debug('%s.get_input_masked_key(%s)', self.id, input_value)
+        input_value_as_bitarray = None
+        if isinstance(input_value, BitArray):
+            input_value_as_bitarray = input_value
+        elif isinstance(input_value, str):
+            input_value_as_bitarray = util.key_string_2_bitarray(input_value)
+        else:
+            util.error(' input_value: UNSUPPORTED TYPE')
+        input_masked_key_string = util.bitarray_2_key_string(input_value_as_bitarray & self.input_mask)
+        util.debug(' input_masked_key_string=%s', input_masked_key_string)
+        return input_masked_key_string
+
+    def get_execution_value(self, input_value):
         """Retrieve from memory the result of an input.
         
         We apply an AND operation with the input mask, 
@@ -167,19 +169,19 @@ class Vertice(object):
         Returns:
             Boolean value of the result or None if no execution value was found.
         """
-        if isinstance(input, BitArray):
-            key = util.bitarray_2_key_string(input)
-        elif isinstance(input, str):
-            key = input
+        util.debug('%s.get_execution_value(%s)', self.id, input_value)
+        execution_value = None
+        input_masked_key_string = self.get_input_masked_key_string(input_value)
+        if input_masked_key_string in self.execution_values.keys():
+            execution_value = self.execution_values[input_masked_key_string]
         else:
-            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
-            raise TypeError()
-        if key in self.execution_values:
-            return self.execution_values[key]
-        else:
-            return None
+            util.warning('   input_value_as_key_string: NOT IN self.execution_values.keys()')
+        util.debug(' execution_value=%s', execution_value)
+        return execution_value
 
     def get_execution_values_as_pretty_string(self):
+        """
+        """
         if self.execution_values == None:
             return 'None'
         elif len(self.execution_values) == 0:
@@ -204,8 +206,7 @@ class Vertice(object):
         elif isinstance(input, str):
             key = input
         else:
-            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
-            raise TypeError()
+            util.error('Parameter "input" unsupported type. Value: %s', input)
         self.target_values[key] = value_as_boolean
 
 
@@ -219,8 +220,7 @@ class Vertice(object):
         elif isinstance(input, str):
             key = input
         else:
-            util.logger.error('Parameter "input" unsupported type. Value: %s', input)
-            raise TypeError()
+            util.error('Parameter "input" unsupported type. Value: %s', input)
         return self.target_values[key]
 
     def get_target_values_as_pretty_string(self):
@@ -229,24 +229,82 @@ class Vertice(object):
             pretty_string += key + '=' + util.boolean_2_pretty_string(value) + ','
         return pretty_string
 
-    def compute_operation(self, key):
+    def compute_input_resulting_value(self, input_value):
+        """Compute the resulting value of this input vertice for a given input parameter."""
+        input_as_bitarray = None
+        if isinstance(input_value, BitArray):
+            input_as_bitarray = input_value
+        elif isinstance(input_value, str):
+            input_as_bitarray = util.key_string_2_bitarray(input_value)
+        else:
+            util.error('    Parameter "input" unsupported type. Value: %s', input_value)
+        resulting_value = input_as_bitarray[self.input_index]
+        util.debug('%s.compute_input_resulting_value(%s)=%s', self.id, input_value, resulting_value)
+        self.set_execution_value(input_as_bitarray, resulting_value)
+
+    def compute_operation_resulting_value(self, input_value):
+        """Compute the resulting value of this operation vertice for a given input parameter.
+
+        Retrieve the operation input parameters from the vertice predecessors,
+        then perform (or compute) the operation on these parameters,
+        finally store the resulting value (or output) in the execution value cache.
+        The execution value cache is a dictionary 
+        whose keys is a binary string representation of the input parameters,
+        but, because only significant bits may have an effect on the resulting value,
+        we apply the input mask to that key. 
+        This optimization significantly reduce the number of entries in the
+        execution value cache for all vertices that are not dependent 
+        on all the algorithm input bits.
+
+        Args:
+            key (BitArray (preferred) or string): The algorithm input. If provided as string, will be converted to BitArray.
+
+        Returns:
+            Boolean value of the result or None if no execution value could be computed.
+        """
         # TODO: check that this vertice is of type OPERATION
         # TODO: make it possible to dynamically assign a different function than NAND here
-        input0 = self.predecessors[0].get_execution_value(key)
-        input1 = self.predecessors[1].get_execution_value(key)
-        output_value = not (input0 and input1)
-        self.set_execution_value(key, output_value)
-        util.logger.debug('%s %s NAND(%s,%s)=%s', self.id, key, input0, input1, output_value)
-        return output_value
-
-    def retrieve_output(self, key):
-        # TODO: check that this vertice is of type OUTPUT
-        if self.predecessors[0] == None:
-            output_value = None
+        util.debug('%s.compute_operation_resulting_value(input_value=%s)', self.id, input_value)
+        input_as_bitarray = None
+        resulting_value = None
+        if isinstance(input_value, BitArray):
+            input_as_bitarray = input_value
+        elif isinstance(input_value, str):
+            input_as_bitarray = util.key_string_2_bitarray(input_value)
         else:
-            output_value = self.predecessors[0].get_execution_value(key)
-        self.set_execution_value(key, output_value)
-        return output_value
+            util.error('    Parameter "input" unsupported type. Value: %s', input_value)
+        if (self.predecessors == None
+            or len(self.predecessors) != 2
+            or self.predecessors[0] == None 
+            or self.predecessors[1] == None):
+            util.warning('  Trying to compute operation without adequate predecessors. Will return None. Operation: %s', self)
+            resulting_value = None
+        else:
+            input0 = self.predecessors[0].get_execution_value(input_as_bitarray)
+            input1 = self.predecessors[1].get_execution_value(input_as_bitarray)
+            if input0 == None or input1 == None:
+                util.warning('  Trying to compute operation but predecessors are unable to provide execution value. Will return None. Operation: %s', self)
+                resulting_value = None
+            else:
+                # Perform a NAND operation
+                resulting_value = not (input0 and input1)
+        self.set_execution_value(input_as_bitarray, resulting_value)
+        util.debug('    resulting_value=%s', resulting_value)
+        return resulting_value
+
+    def compute_output_resulting_value(self, input_value):
+        # TODO: check that this vertice is of type OUTPUT
+        resulting_value = None
+        if input_value == None:
+            util.error('%s.compute_output_resulting_value(input_value=%s): input_value == None', self.id, input_value)
+        if self.predecessors[0] == None:
+            util.warning('%s.compute_output_resulting_value(%s)=%s: output vertice has no predecessor', self.id, input_value, None)
+            resulting_value = None
+        else:
+            resulting_value = self.predecessors[0].get_execution_value(input_value)
+        self.set_execution_value(input_value, resulting_value)
+        util.debug('%s.compute_output_resulting_value(%s)=%s', self.id, input_value, resulting_value)
+        return resulting_value
 
     def append_successor(self, successor):
         """
@@ -273,12 +331,19 @@ class Vertice(object):
     # REMOVE:         return None
 
     def __str__(self):
-        return self.id + ':' + str(self.input_mask) + ',' + str(self.execution_values) + ',' + str(self.target_values)
+        string_output = self.id
+        string_output += ' ('
+        if not self.orphaned_from_predecessors:
+            string_output += ' pre:' + ','.join([predecessor.id for predecessor in self.predecessors])
+        string_output += ' suc:' + ','.join([successor.id for successor in self.successors])
+        string_output += ' msk:' + util.bitarray_2_key_string(self.input_mask)
+        string_output += ' val:' + ''.join([util.boolean_2_pretty_string(execution_value) for execution_value in self.execution_values])
+        string_output += ' tgt:' + ','.join([target_value for target_value in self.target_values])
+        string_output += ' )'
+        return string_output
 
     def __repr__(self):
         return str(self)
-
-
 
 class VerticeType(Enum):
     INPUT = 1

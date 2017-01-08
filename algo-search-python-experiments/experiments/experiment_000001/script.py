@@ -1,9 +1,10 @@
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 from bitstring import BitArray, BitStream
-from classes.algorithm import Algorithm, Vertice, VerticeType
+from classes.algorithm import Algorithm
+from classes.vertice import Vertice, VerticeType
 from classes.util import util
 
-util.set_logging_level(WARNING)
+util.set_logging_level(ERROR, logger_debug_function_depth=7)
 
 algo = Algorithm(2,2)
 
