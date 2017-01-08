@@ -479,3 +479,13 @@ class Algorithm(object):
         graph = self.get_graphviz_dot()
         graph.format = 'svg'
         graph.view()
+
+    def export_as_png(self, filename, folder):
+        graph = self.get_graphviz_dot()
+        graph.format = 'png'
+        graph.save(filename = filename, directory = folder)
+
+    def export_as_svg(self, filename, folder):
+        graph = self.get_graphviz_dot()
+        graph.format = 'svg'
+        graph.save(filename = filename, directory = folder)

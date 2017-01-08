@@ -1,0 +1,182 @@
+digraph Algorithm {
+	subgraph cluster_01 {
+	style=filled
+	fillcolor=lightgrey
+	color=lightgrey
+	label="Inputs"
+		i0 [label=i0 color=blue shape=rect]
+		i1 [label=i1 color=blue shape=rect]
+	}
+	subgraph cluster_02 {
+	label="Operations"
+	style=filled
+	fillcolor=white
+	color=lightgrey
+		subgraph cluster_04 {
+		label="Level 2"
+		style=filled
+		fillcolor=white
+		color=lightgrey
+			p0 [label="p0 11=0,10=1,00=1,01=1," color=grey shape=rect]
+			p4 [label="p4 00=1,01=0," color=grey shape=rect]
+		}
+		subgraph cluster_05 {
+		label="Level 3"
+		style=filled
+		fillcolor=white
+		color=lightgrey
+			p2 [label="p2 11=1,10=1,00=1,01=0," color=grey shape=rect]
+			p5 [label="p5 11=1,10=0,00=0,01=1," color=grey shape=rect]
+			p14 [label="p14 00=1,01=1," color=grey shape=rect]
+			p16 [label="p16 11=1,10=0,00=1,01=1," color=grey shape=rect]
+		}
+		subgraph cluster_06 {
+		label="Level 4"
+		style=filled
+		fillcolor=white
+		color=lightgrey
+			p3 [label="p3 11=0,10=1,00=1,01=1," color=grey shape=rect]
+			p8 [label="p8 11=0,10=1,00=1,01=0," color=grey shape=rect]
+			p12 [label="p12 11=0,10=1,00=1,01=1," color=grey shape=rect]
+			p13 [label="p13 11=1,10=1,00=1,01=1," color=grey shape=rect]
+			p21 [label="p21 11=1,10=0,00=0,01=1," color=grey shape=rect]
+			p32 [label="p32 11=0,10=0,00=1,01=1," color=grey shape=rect]
+		}
+		subgraph cluster_07 {
+		label="Level 5"
+		style=filled
+		fillcolor=white
+		color=lightgrey
+			p6 [label="p6 11=1,10=0,00=1,01=1," color=grey shape=rect]
+			p9 [label="p9 11=1,10=1,00=1,01=0," color=grey shape=rect]
+			p19 [label="p19 11=1,10=0,00=0,01=1," color=grey shape=rect]
+			p23 [label="p23 11=1,10=0,00=0,01=1," color=grey shape=rect]
+			p25 [label="p25 11=1,10=0,00=0,01=0," color=grey shape=rect]
+			p30 [label="p30 11=1,10=1,00=1,01=0," color=grey shape=rect]
+		}
+		subgraph cluster_08 {
+		label="Level 6"
+		style=filled
+		fillcolor=white
+		color=lightgrey
+			p17 [label="p17 11=1,10=1,00=0,01=0," color=grey shape=rect]
+			p20 [label="p20 11=0,10=1,00=1,01=0," color=grey shape=rect]
+			p26 [label="p26 11=1,10=1,00=0,01=0," color=grey shape=rect]
+			p31 [label="p31 11=1,10=1,00=1,01=1," color=grey shape=rect]
+			p35 [label="p35 11=0,10=1,00=1,01=0," color=grey shape=rect]
+			p36 [label="p36 11=0,10=1,00=1,01=1," color=grey shape=rect]
+			p40 [label="p40 11=1,10=0,00=0,01=1," color=grey shape=rect]
+			p44 [label="p44 11=0,10=1,00=1,01=1," color=grey shape=rect]
+			p45 [label="p45 11=0,10=1,00=0,01=1," color=grey shape=rect]
+		}
+		subgraph cluster_09 {
+		label="Level 7"
+		style=filled
+		fillcolor=white
+		color=lightgrey
+			p18 [label="p18 11=0,10=1,00=1,01=1," color=grey shape=rect]
+			p22 [label="p22 11=1,10=0,00=0,01=1," color=grey shape=rect]
+			p28 [label="p28 11=1,10=0,00=0,01=1," color=grey shape=rect]
+			p33 [label="p33 11=0,10=0,00=1,01=1," color=grey shape=rect]
+			p37 [label="p37 11=1,10=0,00=1,01=1," color=grey shape=rect]
+			p38 [label="p38 11=1,10=0,00=1,01=1," color=grey shape=rect]
+			p43 [label="p43 11=0,10=0,00=1,01=1," color=grey shape=rect]
+		}
+		subgraph cluster_010 {
+		label="Level 8"
+		style=filled
+		fillcolor=white
+		color=lightgrey
+			p24 [label="p24 11=1,10=1,00=0,01=0," color=grey shape=rect]
+			p39 [label="p39 11=1,10=1,00=0,01=1," color=grey shape=rect]
+			p41 [label="p41 11=1,10=1,00=1,01=0," color=grey shape=rect]
+			p42 [label="p42 11=1,10=1,00=0,01=1," color=grey shape=rect]
+		}
+	}
+	subgraph cluster_03 {
+	style=filled
+	fillcolor=lightgrey
+	color=lightgrey
+	label="Outputs"
+		o0 [label=o0 color=green shape=rect]
+		o1 [label=o1 color=green shape=rect]
+	}
+		i0 -> p0 [color=blue]
+		i0 -> p6 [color=blue]
+		i0 -> p12 [color=blue]
+		i0 -> p16 [color=blue]
+		i0 -> p32 [color=blue]
+		i0 -> p44 [color=blue]
+		i1 -> p0 [color=blue]
+		i1 -> p2 [color=blue]
+		i1 -> p3 [color=blue]
+		i1 -> p4 [color=blue]
+		i1 -> p4 [color=blue]
+		i1 -> p9 [color=blue]
+		i1 -> p14 [color=blue]
+		i1 -> p35 [color=blue]
+		p0 -> p2 [color=black]
+		p0 -> p5 [color=black]
+		p0 -> p16 [color=black]
+		p0 -> p17 [color=black]
+		p0 -> p21 [color=black]
+		p2 -> p3 [color=black]
+		p2 -> p19 [color=black]
+		p2 -> p21 [color=black]
+		p2 -> p32 [color=black]
+		p2 -> p45 [color=black]
+		p3 -> p6 [color=black]
+		p3 -> p9 [color=black]
+		p3 -> p30 [color=black]
+		p3 -> p40 [color=black]
+		p4 -> p5 [color=black]
+		p4 -> p13 [color=black]
+		p4 -> p14 [color=black]
+		p4 -> p42 [color=black]
+		p5 -> p8 [color=black]
+		p5 -> p8 [color=black]
+		p5 -> p12 [color=black]
+		p5 -> p13 [color=black]
+		p5 -> p30 [color=black]
+		p5 -> p36 [color=black]
+		p6 -> p17 [color=black]
+		p6 -> p26 [color=black]
+		p6 -> p45 [color=black]
+		p8 -> p19 [color=black]
+		p8 -> p23 [color=black]
+		p8 -> p28 [color=black]
+		p8 -> p31 [color=black]
+		p9 -> p40 [color=black]
+		p12 -> p25 [color=black]
+		p12 -> p26 [color=black]
+		p12 -> p38 [color=black]
+		p14 -> p22 [color=black]
+		p14 -> p23 [color=black]
+		p14 -> p25 [color=black]
+		p14 -> p43 [color=black]
+		p16 -> p18 [color=black]
+		p16 -> p20 [color=black]
+		p16 -> p24 [color=black]
+		p17 -> p18 [color=black]
+		p17 -> p37 [color=black]
+		p18 -> p24 [color=black]
+		p19 -> p20 [color=black]
+		p19 -> p31 [color=black]
+		p19 -> p35 [color=black]
+		p19 -> p41 [color=black]
+		p19 -> p44 [color=black]
+		p20 -> p22 [color=black]
+		p20 -> p28 [color=black]
+		p25 -> o0 [color=green]
+		p26 -> p33 [color=black]
+		p26 -> p33 [color=black]
+		p26 -> p38 [color=black]
+		p26 -> p43 [color=black]
+		p30 -> p36 [color=black]
+		p33 -> p39 [color=black]
+		p33 -> p41 [color=black]
+		p33 -> p42 [color=black]
+		p35 -> p37 [color=black]
+		p35 -> p39 [color=black]
+		p45 -> o1 [color=green]
+}
